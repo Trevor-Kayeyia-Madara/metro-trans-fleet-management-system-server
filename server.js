@@ -23,10 +23,10 @@ app.post('/login', async (req, res) => {
 
     // Query Supabase to check if the user exists
     const { data, error } = await supabase
-      .from('users')
-      .select('username, password')
-      .eq('username', username)
-      .eq('password', password)
+      .from('Users')
+      .select('UserName, UserPassword')
+      .eq('UserName', username)
+      .eq('UserPassword', password)
       .single();
 
     if (error) {
@@ -43,7 +43,32 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
+// Route to get UserRole for a specific UserID
+app.get('/userrole/:userId', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+  
+      // Query Supabase to get UserRole for the specified UserID
+      const { data, error } = await supabase
+        .from('UserRoles')
+        .select('UserID, UserRole')
+        .eq('UserID', userId)
+        .single();
+  
+      if (error) {
+        throw error;
+      }
+  
+      // If data is found, send the UserRole, else send an error response
+      if (data) {
+        res.json({ userRole: data.role });
+      } else {
+        res.status(404).json({ error: 'UserRole not found for the specified UserID' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
